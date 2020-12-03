@@ -1,16 +1,21 @@
-# lista_de_tarefas
+# Lista de Tarefas App
+> A simple mobile task manager made with Flutter.
 
-A new Flutter project.
+## :art: Features
 
-## Getting Started
+You're able to:
 
-This project is a starting point for a Flutter application.
+- Persistently create new tasks, defining its name;
+- Mark a task as done;
+- Delete tasks (by sliding task tile from left to right);
+- Undo the deletion;
 
-A few resources to get you started if this is your first Flutter project:
+## :rocket: How to run
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+To run the application in development it's necessary to have Flutter installed in the machine. Besides, you'll need a Android emulator or Android phone if you're using Linux or Windows, and those same options OR a iPhone emulator/iPhone if using a Mac.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Once everything is configured, you just need to run the application with the phone connected or the emulator open.
+
+## :toolbox: Technologies used
+
+- [Flutter](https://github.com/flutter/flutter)
