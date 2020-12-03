@@ -18,6 +18,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Task> _todoList = <Task>[];
   final _taskTitle = TextEditingController();
+  Task _lastRemoved;
+  int _lastRemovedPosition;
 
   @override
   void initState() {
@@ -64,6 +66,86 @@ class _HomeState extends State<Home> {
     }
   }
 
+  Widget buildItem(context, index) {
+    return Dismissible(
+      key: Key(_todoList[index].title),
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: Alignment(-0.9, 0.0),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      direction: DismissDirection.startToEnd,
+      child: CheckboxListTile(
+        title: Text(
+          _todoList[index].title,
+          style: TextStyle(
+            color: _todoList[index].status ? Colors.grey : Colors.blueAccent,
+          ),
+        ),
+        value: _todoList[index].status,
+        secondary: CircleAvatar(
+          child: Icon(
+            _todoList[index].status ? Icons.check : Icons.error,
+          ),
+        ),
+        onChanged: (bool value) {
+          setState(() {
+            _todoList[index].status = value;
+            _saveData();
+          });
+        },
+      ),
+      onDismissed: (direction) {
+        setState(() {
+          _lastRemoved = _todoList[index];
+          _lastRemovedPosition = index;
+          _todoList.removeAt(index);
+
+          _saveData();
+        });
+
+        final snack = SnackBar(
+          content: Text('Tarefa removida.'),
+          duration: Duration(seconds: 2),
+          action: SnackBarAction(
+            label: 'Desfazer',
+            onPressed: () {
+              setState(() {
+                _todoList.insert(_lastRemovedPosition, _lastRemoved);
+                _saveData();
+              });
+            },
+          ),
+        );
+
+        Scaffold.of(context).removeCurrentSnackBar();
+        Scaffold.of(context).showSnackBar(snack);
+      },
+    );
+  }
+
+  Future<Null> _refresh() async {
+    await Future.delayed(Duration(seconds: 1));
+
+    setState(() {
+      _todoList.sort((a, b) {
+        if (a.status && !b.status)
+          return 1;
+        else if (!a.status && b.status)
+          return -1;
+        else
+          return 0;
+      });
+
+      _saveData();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,33 +182,13 @@ class _HomeState extends State<Home> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(top: 8.0),
-              itemCount: _todoList.toList().length,
-              itemBuilder: (context, index) {
-                return CheckboxListTile(
-                  title: Text(
-                    _todoList[index].title,
-                    style: TextStyle(
-                      color: _todoList[index].status
-                          ? Colors.grey
-                          : Colors.blueAccent,
-                    ),
-                  ),
-                  value: _todoList[index].status,
-                  secondary: CircleAvatar(
-                    child: Icon(
-                      _todoList[index].status ? Icons.check : Icons.error,
-                    ),
-                  ),
-                  onChanged: (bool value) {
-                    setState(() {
-                      _todoList[index].status = value;
-                      _saveData();
-                    });
-                  },
-                );
-              },
+            child: RefreshIndicator(
+              onRefresh: _refresh,
+              child: ListView.builder(
+                padding: EdgeInsets.only(top: 8.0),
+                itemCount: _todoList.toList().length,
+                itemBuilder: buildItem,
+              ),
             ),
           ),
         ],
